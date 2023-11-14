@@ -1,11 +1,11 @@
-from utils import dfile
-from utils import midi_tools
+from .dfile import *
 import os
 
 class DataContainer():
   def __init__(self, data_path, data_name) -> None:
     self.data_path = data_path
     self.data_name = data_name
+    self.mydata = {}
     self.check_data()
     self.backup()
   def check_data(self):
@@ -13,34 +13,34 @@ class DataContainer():
     path = ""
     for path_element in path_list[:-1]:
       path += path_element
-      if dfile.isfile(path):
+      if isfile(path):
         pass
       else:
-        dfile.add_folder(path)
+        add_folder(path)
       path += "/"
-    if dfile.isfile(self.data_path):
-      pass
+    if isfile(self.data_path):
+      self.mydata = load_json_file(self.data_path)
     else:
-      dfile.save_json_file(path=self.data_path, data={self.data_name: {}})
-    if not dfile.isfile("backup"):
-      dfile.add_folder("backup")
+      save_json_file(path=self.data_path, data={self.data_name: {}})
+    if not isfile("backup"):
+      add_folder("backup")
       
   def update_data(self, data_key, data_value):
-    mydata = dfile.load_json_file(self.data_path)
+    mydata = load_json_file(self.data_path)
     mydata[self.data_name][data_key] = data_value
-    dfile.save_json_file(self.data_path, mydata)
+    save_json_file(self.data_path, mydata)
   def remove_data(self, data_key):
-    mydata = dfile.load_json_file(self.data_path)
+    mydata = load_json_file(self.data_path)
     del mydata[self.data_name][data_key]
-    dfile.save_json_file(self.data_path, mydata)
+    save_json_file(self.data_path, mydata)
   def backup(self):
     backup_files = os.path.basename("backup")
     toggle = True
     for backup_file in backup_files:
-      if dfile.today == backup_file.split("_")[0]:
+      if today == backup_file.split("_")[0]:
         toggle = False
     if toggle:
-      mydata = dfile.load_json_file(self.data_path)
-      dfile.save_json_file("backup/"+dfile.today()+"_"+self.data_name+".json", mydata)
+      mydata = load_json_file(self.data_path)
+      save_json_file("backup/"+today()+"_"+self.data_name+".json", mydata)
 
 
