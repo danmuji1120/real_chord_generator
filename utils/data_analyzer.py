@@ -18,7 +18,7 @@ def data_average(data):
         result[key] = round(sum(items)/len(items), 2)
     return result
 # 주변 데이터를 반영한 데이터를 출력
-def data_reflect(data):
+def data_reflect(data: dict):
     data_keys = list(data.keys())
     data_items = list(data.values())
     result = {}
@@ -42,3 +42,12 @@ def reflect_neighbor_probability(default_data, add_data):
     for key in mydata.keys():
       result[key] = round(mydata_average[key] + (mydata_reflect[key] - mydata_average[key]) / len(mydata[key]), 2)
     return result
+
+
+
+if __name__ == "__main__":
+  import data_manager
+  import os
+  CURRENT_PATH = os.path.split(__file__)[0]
+  test = data_manager.DataContainer(os.path.join(CURRENT_PATH, "sample", "sample_data.json"), "chord")
+  print(test.mydata)

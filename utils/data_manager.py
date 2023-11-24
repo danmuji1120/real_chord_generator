@@ -1,4 +1,5 @@
 from .dfile import *
+# import dfile
 import os
 
 class DataContainer():
@@ -10,6 +11,8 @@ class DataContainer():
     self.backup()
   def check_data(self):
     path_list = self.data_path.split("/")
+    if path_list[0] == "":
+      del path_list[0]
     path = ""
     for path_element in path_list[:-1]:
       path += path_element
@@ -37,7 +40,7 @@ class DataContainer():
     backup_files = os.path.basename("backup")
     toggle = True
     for backup_file in backup_files:
-      if today == backup_file.split("_")[0]:
+      if today() == backup_file.split("_")[0]:
         toggle = False
     if toggle:
       mydata = load_json_file(self.data_path)
