@@ -91,7 +91,7 @@ class ChordDataAnalyzer(DataContainer):
       notes.sort()
       if score > 0:
         for i in range(0, len(notes)-1):
-          interval = notes[i+1] - notes[i]
+          interval = notes[i+1] - notes[0]
           if interval in note_interval_data:
             note_interval_data[interval].append(score)
           else:
