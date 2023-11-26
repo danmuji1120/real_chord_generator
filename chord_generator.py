@@ -14,6 +14,10 @@ class NoteSelector(ChordDataAnalyzer):
   def select_note(self):
     # print(f"min: {self.min_note}, max: {self.max_note}")
     return random.choice(range(self.min_note, self.max_note + 1))
+  def select_note_weight(self):
+    key = list(self.note_weight.keys())
+    item = list(self.note_weight.values())
+    self.selected_note = random.choices(key, item)[0]
   def select_note_count(self):
     # self.note_count = random.choice(range(1, 12))
     self.note_count = random.choice(range(1, self.max_note-self.min_note))
@@ -21,8 +25,8 @@ class NoteSelector(ChordDataAnalyzer):
   def select_note_count_weight(self):
     key = list(self.note_count_weight.keys())
     item = list(self.note_count_weight.values())
-    # print(key)
-    # print(item)
+    print(len(key))
+    print(len(item))
     self.note_count = random.choices(key, item)[0]
     # print("asfadsf: ", self.note_count)
 
@@ -56,6 +60,39 @@ class ChordGenerator(NoteSelector):
     self.select_note_count_weight()
     while len(self.mychord) <= self.note_count:
       selected_note = self.select_note()
+      if not selected_note in self.mychord:
+        self.mychord.append(selected_note)
+  def root_num_interval_generator(self):
+    self.mychord = []
+    self.min_note = 12
+    self.return_root_note_weight()
+    print("루트 확률: ", self.note_weight)
+    self.root_note = self.max_note
+    while self.root_note == self.max_note:
+      self.select_note_weight()
+      self.root_note = self.selected_note
+    # print("루트 노트: ", self.root_note)
+    self.min_note = self.root_note
+    self.mychord.append(self.root_note)
+    self.reflect_weight()
+    pre_data = {}
+    for key, item in self.note_count_weight.items():
+      if key < self.max_note - self.root_note:
+        pre_data[key] = item
+    self.note_count_weight = pre_data
+    self.select_note_count_weight()
+    self.return_note_interval_weight()
+    intervals = list(self.note_interval_weight.keys())
+    weights = list(self.note_interval_weight.values())
+    # print("노트개수: ", self.note_count)
+    print('노트 개수 확률: ',self.note_count_weight)
+    print("루트음: ", self.root_note)
+    print("선택된 노트 개수: ", self.note_count)
+    print("선택가능한 노트 개수: ", len(intervals))
+    while len(self.mychord) < self.note_count:
+      selected_note_interval = random.choices(intervals, weights)[0]
+      selected_note = self.root_note + selected_note_interval
+      # print("선택된 노트: ", selected_note)
       if not selected_note in self.mychord:
         self.mychord.append(selected_note)
 
@@ -99,7 +136,7 @@ class ChordMain(ChordGenerator):
       else:
         self.start()
   def chord_menu(self):
-    print("--선택--\n1. 완전랜덤\n2. 노트 개수 반영\n3. 인접 확률 반영\nx. 뒤로가기")
+    print("--선택--\n1. 완전랜덤\n2. 노트 개수 반영\n3. 인접 확률 반영\n4. 루트, 노트 간격 분석 반영\nx. 뒤로가기")
     answer = input("입력: ")
     while self.break_toggle:
       if answer == "1":
@@ -108,10 +145,11 @@ class ChordMain(ChordGenerator):
         self.stack_chord_generator()
       elif answer == "3":
         self.reflect_stack_generator()
+      elif answer == "4":
+        self.root_num_interval_generator()
       elif answer == "x":
         break
       self.temporary_save()
-      print(self.mychord)
       self.input_score()
   def setting_menu(self):
     pass
@@ -120,7 +158,8 @@ class ChordMain(ChordGenerator):
     midi_to_logic.playlogic(self.temporary_name+".mid")
     line_clear()
     # midi_tools.sheet_generator(self.temporary_name, self.temporary_name+".mid")
-    print(self.note_count_weight)
+    # print(self.note_count_weight)
+    print(self.mychord)
     print("--선택--\n0~100: 점수 저장\nr: 다시듣기\nx: 뒤로가기")
     answer = input("입력: ")
     line_clear()

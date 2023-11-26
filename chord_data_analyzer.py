@@ -34,9 +34,9 @@ class ChordDataAnalyzer(DataContainer):
     return len(self.mydata[self.data_name])
   # 노트 개수에 대한 초기 확률 설정
   def default_note_count_weight(self):
-    for i in range(1, self.max_note - self.min_note+2):
-      self.note_count_weight[i] = 50
-    # print(self.note_count_weight)
+    for i in range(1, self.max_note - self.min_note+3):
+      self.note_count_weight[i] = 10
+    # print("기본 노트 개수 확률: ", self.note_count_weight)
   # 노트 개수의 점수의 평균을 반환
   def average_note_count(self):
     self.note_count_databox = note_count_score(self.mydata[self.data_name])
@@ -47,13 +47,14 @@ class ChordDataAnalyzer(DataContainer):
     for key, item in self.note_count_databox.items():
       self.note_count_weight[key] += item
   def reflect_weight(self):
+    self.default_note_count_weight()
     mydata = note_count_score(self.mydata[self.data_name])
     # print(mydata)
     self.note_count_weight = data_analyzer.reflect_neighbor_probability(self.note_count_weight, mydata)
   # 범위 안의 노트 기본 확룰 생성
   def default_note_weight(self):
     for i in range(self.min_note, self.max_note + 1):
-      self.note_weight[i] = 50
+      self.note_weight[i] = 5
     # print(self.note_weight)
   # 루드 노트에 대한 확룰를 적용
   def return_root_note_weight(self):
@@ -76,8 +77,11 @@ class ChordDataAnalyzer(DataContainer):
   
   # 노트 간격에 따른 확률 반환
   def return_note_interval_weight(self):
-    pass
-
+    default_note_interval_weight = {}
+    for i in range(1, self.max_note - self.min_note):
+      default_note_interval_weight[i] = 50
+    self.note_interval_weight = data_analyzer.reflect_neighbor_probability(default_note_interval_weight, self.note_inteval_score())
+    # print(self.note_interval_weight)
   # 노트 간격에 대한 점수를 반환
   def note_inteval_score(self):
     note_interval_data = {}
@@ -93,20 +97,24 @@ class ChordDataAnalyzer(DataContainer):
           else:
             note_interval_data[interval] = [score]
     note_interval_data = dict(sorted(note_interval_data.items()))
-    for i in note_interval_data.keys():
-      print(i, ": ", note_interval_data[i])
+    # for i in note_interval_data.keys():
+    #   print(i, ": ", note_interval_data[i])
+    return note_interval_data
 
 if __name__ == "__main__":
   test = ChordDataAnalyzer()
   test.reflect_weight()
   test.root_note_score()
-  print(test.note_count_weight)
+  # print(test.note_count_weight)
   import matplotlib.pyplot as plt
   data = test.root_note_score()
   sub_data = {}
-  for i, j in data.items():
-    sub_data[i] = round(sum(j)/len(j), 2)
-  test.return_root_note_weight()
-  plt.plot(sub_data.keys(), sub_data.values(), test.note_weight.keys(), test.note_weight.values())
-  plt.show()
-  test.note_inteval_score()
+  # for i, j in data.items():
+  #   sub_data[i] = round(sum(j)/len(j), 2)
+  # test.return_root_note_weight()
+  # plt.plot(sub_data.keys(), sub_data.values(), test.note_weight.keys(), test.note_weight.values())
+  # plt.show()
+  # test.note_inteval_score()
+  # test.return_note_interval_weight()
+  # plt.plot(test.note_interval_weight.keys(), test.note_interval_weight.values())
+  # plt.show()

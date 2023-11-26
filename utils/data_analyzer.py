@@ -9,7 +9,11 @@ def sum_data(default_data, add_data):
         data[key] = [item]
     for key, items in add_data.items():
         for item in items:
-            data[key].append(item)
+          try:
+            if len(data[key]) > 0:
+              data[key].append(item)
+          except:
+            pass
     return data
 # 데이터들의 평균을 계산한다.
 def data_average(data):
